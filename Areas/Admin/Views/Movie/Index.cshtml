@@ -1,0 +1,191 @@
+﻿<div class="container">
+    <div class="row mb-3 align-items-center my-3">
+        <div class="col-md-6">
+            <h2 class="display-6">All Movies</h2>
+        </div>
+        <div class="col-md-6 text-md-end text-start mt-2 mt-md-0">
+            <a href="/Admin/Movie/Create" class="btn btn-success">Create</a>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <section class="py-3 filter-bar">
+        <div class="container">
+            <div class="row" style="background-color: rgba(var(--bs-light-rgb), var(--bs-bg-opacity)) !important;">
+                <div class="col-12">
+                    <form>
+                        <div class="row">
+                            <!-- Product Name -->
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" placeholder="Product Name" name="ProductName" value="@ViewBag.ProductName">
+                            </div>
+
+                            <!-- Price Range -->
+                            <div class="col-md-2">
+                                <input type="number" class="form-control" placeholder="Min Price" name="MinPrice" value="@ViewBag.MinPrice">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" class="form-control" placeholder="Max Price" name="MaxPrice" value="@ViewBag.MaxPrice">
+                            </div>
+
+                            <!-- Category -->
+                            <div class="col-md-2">
+                                <select name="CategoryId" class="form-control">
+                                    <option>--Select Category--</option>
+                                    @if (ViewData["categories"] is List<Category> categories)
+                                    {
+                                        @foreach (var item in categories)
+                                        {
+                                            if (item.Id == ViewBag.CategoryId)
+                                            {
+                                                <option value="@item.Id" selected>@item.Name</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.Id">@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Rating -->
+                            @* <div class="col-md-2"> *@
+                            @*     <select name="rating" class="form-control"> *@
+                            @*         <option value="">Any Rating</option> *@
+                            @*         <option>option 1</option> *@
+                            @*         <option>option 2</option> *@
+                            @*         <option>option 3</option> *@
+                            @*     </select> *@
+                            @* </div> *@
+
+                            <!-- Hot Product Checkbox -->
+                            <div class="col-md-1">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="IsHot" value="True" @(ViewBag.IsHot is not null && ViewBag.IsHot ? "checked" : "")>
+                                    <label class="form-check-label">Hot</label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-dark w-100">Filter</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <div class="row">
+        <div class="col-12">
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">ShowTime</th>
+                        <th scope="col"> Category Name</th>
+                        <th scope="col">Cinema Name</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <th scope="row">@item.Id</th>
+                            <td>@item.Name</td>
+
+                            @if (!item.Status)
+                            {
+                                <td><span class="badge text-bg-danger">InActive</span></td>
+                            }
+                            else
+                            {
+                                <td><span class="badge text-bg-success">Active</span></td>
+                            }
+
+                            <td>@item.Price.ToString("c")</td>
+                            <td>@item.ShowTime</td>
+                            <td>@item.CategoryName</td>
+                            <td>@item.CinemaName</td>
+
+                            <td>
+                                <a href="/Admin/Movie/Edit/@item.Id" type="button" class="btn btn-warning">Edit</a>
+                                <a href="/Admin/Movie/Delete/@item.Id" class="btn btn-danger btn-delete">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <nav aria-label="Page navigation example">
+        <div class="col d-flex justify-content-center">
+            <ul class="pagination">
+                @if (ViewBag.currentPage > 1)
+                {
+                    <li class="page-item"><a class="page-link" href="?page=@(ViewBag.currentPage - 1)">Previous</a></li>
+                }
+                @for (int i = 1; i <= ViewBag.totalPages; i++)
+                {
+                    <li class="page-item"><a class="page-link" href="?page=@i">@i</a></li>
+                }
+                @if (ViewBag.currentPage != ViewBag.totalPages)
+                {
+                    <li class="page-item"><a class="page-link" href="?page=@(ViewBag.currentPage + 1)">Next</a></li>
+                }
+            </ul>
+        </div>
+    </nav>
+</div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteButtons = document.querySelectorAll(".btn-delete");
+
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function (e) {
+                e.preventDefault(); // stop normal navigation
+
+                const url = this.getAttribute("href");
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This action cannot be undone!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                          title: "Deleted!",
+                          text: "Your file has been deleted.",
+                          icon: "success"
+                        });
+
+                        // Redirect to delete URL
+                        window.location.href = url;
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+
+
