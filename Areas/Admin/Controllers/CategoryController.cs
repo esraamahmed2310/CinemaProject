@@ -6,35 +6,54 @@ namespace CinemaProject.Areas.Admin.Controllers
     [Area("Admin")]
     public class CategoryController : Controller
     {
-        private ApplicationDbContext _context = new();
+        //private ApplicationDbContext _context = new();
+        private IRepository<Category> _categoryRepository;// = new Repository<Category>();
 
-        public ViewResult Index()
+        public CategoryController(IRepository<Category> categoryRepository)
         {
-            var categories = _context.Categories.AsNoTracking().AsQueryable();
+            _categoryRepository = categoryRepository;
+        }
+
+        public async Task<ViewResult> Index(CancellationToken cancellationToken)
+        {
+            var categories = await _categoryRepository.GetAsync(tracked: false, cancellationToken: cancellationToken);
 
             return View(categories.AsEnumerable());
         }
-    
+
+
 
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            return View(new Category());
         }
 
         [HttpPost]
-        public IActionResult Create(Category category)
+        public async Task<IActionResult> Create(Category category, CancellationToken cancellationToken)
         {
-            _context.Categories.Add(category);
-            _context.SaveChanges();
+            if (!ModelState.IsValid)
+            {
+                //ModelState.AddModelError(string.Empty, "Additional Error");
+
+                TempData["error-notification"] = "Error While Saving Category";
+
+                return View(category);
+            }
+
+            await _categoryRepository.CreateAsync(category, cancellationToken);
+            await _categoryRepository.CommitAsync(cancellationToken);
+
+            //Response.Cookies.Append("success-notification", "Add Category Successfully");
+            TempData["success-notification"] = "Add Category Successfully";
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
         {
-            var category = _context.Categories.Find(id);
+            var category = await _categoryRepository.GetOneAsync(e => e.Id == id, cancellationToken: cancellationToken);
 
             if (category is null)
                 return RedirectToAction("NotFoundPage", "Home");
@@ -43,23 +62,33 @@ namespace CinemaProject.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Category category)
+        public async Task<IActionResult> Edit(Category category, CancellationToken cancellationToken)
         {
-            _context.Categories.Update(category);
-            _context.SaveChanges();
+            if (!ModelState.IsValid)
+            {
+                TempData["error-notification"] = "Error While Saving Category";
+
+                return View(category);
+            }
+
+            _categoryRepository.Update(category);
+            await _categoryRepository.CommitAsync(cancellationToken);
+
+            TempData["success-notification"] = "Update Category Successfully";
 
             return RedirectToAction(nameof(Index));
         }
-
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            var category = _context.Categories.Find(id);
+            var category = await _categoryRepository.GetOneAsync(e => e.Id == id, cancellationToken: cancellationToken);
 
             if (category is null)
                 return RedirectToAction("NotFoundPage", "Home");
 
-            _context.Categories.Remove(category);
-            _context.SaveChanges();
+            _categoryRepository.Delete(category);
+            await _categoryRepository.CommitAsync(cancellationToken);
+
+            TempData["success-notification"] = "Delete Category Successfully";
 
             return RedirectToAction(nameof(Index));
 

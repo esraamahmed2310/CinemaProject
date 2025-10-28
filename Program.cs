@@ -9,6 +9,12 @@ namespace CinemaProject
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+
+
+            builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
+            builder.Services.AddScoped<IRepository<Cinema>, Repository<Cinema>>();
+            builder.Services.AddScoped<IRepository<Movie>, Repository<Movie>>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

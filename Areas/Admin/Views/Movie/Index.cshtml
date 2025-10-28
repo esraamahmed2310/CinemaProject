@@ -91,7 +91,7 @@
                         <th scope="col">Status</th>
                         <th scope="col">Price</th>
                         <th scope="col">ShowTime</th>
-                        <th scope="col"> Category Name</th>
+                        <th scope="col">Category Name</th>
                         <th scope="col">Cinema Name</th>
                         <th scope="col">Actions</th>
                     </tr>
@@ -114,8 +114,8 @@
 
                             <td>@item.Price.ToString("c")</td>
                             <td>@item.ShowTime</td>
-                            <td>@item.CategoryName</td>
-                            <td>@item.CinemaName</td>
+                            <td>@item.Category.Name</td>
+                            <td>@item.Cinema.Name</td>
 
                             <td>
                                 <a href="/Admin/Movie/Edit/@item.Id" type="button" class="btn btn-warning">Edit</a>
@@ -149,8 +149,6 @@
         </div>
     </nav>
 </div>
-</div>
-
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

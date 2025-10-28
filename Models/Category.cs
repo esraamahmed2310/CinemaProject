@@ -7,6 +7,6 @@
         public string? Description { get; set; }       // وصف بسيط للتصنيف
         public bool IsActive { get; set; } = true;    // تفعيل/إخفاء التصنيف
 
-        public ICollection<Movie> Movies { get; set; } = new List<Movie>();
+        public ICollection<Movie> Movies { get; } 
     }
 }

@@ -1,24 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using CinemaProject.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System;
+using System.Linq;
 
 namespace CinemaProject.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class CinemaController : Controller
     {
-        private ApplicationDbContext _context = new();
+        private readonly IRepository<Cinema> _cinemaRepository;
 
-        public ViewResult Index()
+        public CinemaController(IRepository<Cinema> cinemaRepository)
         {
-            var Cinemas = _context.Cinemas.AsNoTracking().AsQueryable();
+            _cinemaRepository = cinemaRepository;
+        }
 
-            return View(Cinemas.Select(e => new
-            {
-                e.Id,
-                e.Name,
-                e.Description,
-                e.IsActive
-            }).AsEnumerable());
+        public async Task<ViewResult> Index(CancellationToken cancellationToken)
+        {
+            var cinemas = await _cinemaRepository.GetAsync(cancellationToken: cancellationToken, tracked: false);
+
+            // بنرجع الـ list نفسها مش anonymous object (علشان الـ View تتعامل مع Model Cinema)
+            return View(cinemas);
         }
 
         [HttpGet]
@@ -28,91 +33,78 @@ namespace CinemaProject.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Cinema Cinema, IFormFile file)
+        public async Task<IActionResult> Create(Cinema cinema, IFormFile file, CancellationToken cancellationToken)
         {
             if (file is not null && file.Length > 0)
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot//images", fileName);
-
-                //if(!System.IO.File.Exists(filePath))
-                //{
-                //    System.IO.File.Create(filePath);
-                //}
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
 
                 using (var stream = System.IO.File.Create(filePath))
                 {
-                    file.CopyTo(stream);
+                    await file.CopyToAsync(stream, cancellationToken);
                 }
 
-                Cinema.Image = fileName;
+                cinema.Image = fileName;
             }
 
-            _context.Cinemas.Add(Cinema);
-            _context.SaveChanges();
+            await _cinemaRepository.CreateAsync(cinema);
+            await _cinemaRepository.CommitAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
         {
-            var Cinema = _context.Cinemas.Find(id);
+            var cinema = await _cinemaRepository.GetOneAsync(e => e.Id == id, cancellationToken: cancellationToken);
 
-            if (Cinema is null)
+            if (cinema is null)
                 return RedirectToAction("NotFoundPage", "Home");
 
-            return View(Cinema);
+            return View(cinema);
         }
 
         [HttpPost]
-        public IActionResult Edit(Cinema Cinema, IFormFile file)
+        public async Task<IActionResult> Edit(Cinema cinema, IFormFile file, CancellationToken cancellationToken)
         {
-            var CinemaInDB = _context.Cinemas.AsNoTracking().FirstOrDefault(e => e.Id == Cinema.Id);
+            var cinemaInDB = await _cinemaRepository.GetOneAsync(e => e.Id == cinema.Id, cancellationToken: cancellationToken);
 
-            if (CinemaInDB is null)
+            if (cinemaInDB is null)
                 return RedirectToAction("NotFoundPage", "Home");
 
-            if (file is not null)
+            if (file is not null && file.Length > 0)
             {
-                if (file.Length > 0)
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
+
+                using (var stream = System.IO.File.Create(filePath))
                 {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot//images", fileName);
-
-                    //if(!System.IO.File.Exists(filePath))
-                    //{
-                    //    System.IO.File.Create(filePath);
-                    //}
-
-                    using (var stream = System.IO.File.Create(filePath))
-                    {
-                        file.CopyTo(stream);
-                    }
-
-                    Cinema.Image = fileName;
+                    await file.CopyToAsync(stream, cancellationToken);
                 }
+
+                cinema.Image = fileName;
             }
             else
             {
-                Cinema.Image = CinemaInDB.Image;
+                cinema.Image = cinemaInDB.Image;
             }
 
-            _context.Cinemas.Update(Cinema);
-            _context.SaveChanges();
+            _cinemaRepository.Update(cinema);
+            await _cinemaRepository.CommitAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            var Cinema = _context.Cinemas.Find(id);
+            var cinema = await _cinemaRepository.GetOneAsync(e => e.Id == id, cancellationToken: cancellationToken);
 
-            if (Cinema is null)
+            if (cinema is null)
                 return RedirectToAction("NotFoundPage", "Home");
 
-            _context.Cinemas.Remove(Cinema);
-            _context.SaveChanges();
+            _cinemaRepository.Delete(cinema);
+            await _cinemaRepository.CommitAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index));
         }
