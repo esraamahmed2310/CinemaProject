@@ -87,10 +87,10 @@ namespace CinemaProject.Areas.Admin.Controllers
             }
             else
             {
-                cinema.Image = cinemaInDB.Image;
+                cinemaInDB.Image = cinema.Image;
             }
 
-            _cinemaRepository.Update(cinema);
+            _cinemaRepository.Update(cinemaInDB);
             await _cinemaRepository.CommitAsync(cancellationToken);
 
             return RedirectToAction(nameof(Index));
