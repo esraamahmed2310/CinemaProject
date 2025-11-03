@@ -67,8 +67,9 @@ namespace CinemaProject.Repositories
 
         public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _dbSet.ToListAsync(cancellationToken);
+            return await _context.Set<T>().ToListAsync(cancellationToken);
         }
+
 
         public async Task<int> CommitAsync(CancellationToken cancellationToken = default)
         {
