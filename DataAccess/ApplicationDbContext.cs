@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using CinemaProject.ViewModels;
+
 
 namespace CinemaProject.DataAccess
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -14,6 +17,7 @@ namespace CinemaProject.DataAccess
         public DbSet<Actor> Actors { get; set; }
         public DbSet<MovieActor> MovieActors { get; set; }
         public DbSet<MovieSubImage> MovieSubImages { get; set; }
+        public DbSet<ApplicationUserOTP> ApplicationUserOTPs { get; set; }
 
         // Depracted
         public ApplicationDbContext()
@@ -51,6 +55,12 @@ namespace CinemaProject.DataAccess
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }
+        public DbSet<CinemaProject.ViewModels.ValidateOTP> ValidateOTP { get; set; } = default!;
+        public DbSet<CinemaProject.ViewModels.NewPasswordVM> NewPasswordVM { get; set; } = default!;
+        //public DbSet<CinemaProject.ViewModels.RegisterVM> RegisterVM { get; set; } = default!;
+        //public DbSet<CinemaProject.ViewModels.LoginVM> LoginVM { get; set; } = default!;
+        //public DbSet<CinemaProject.ViewModels.ResendEmailConfirmationVM> ResendEmailConfirmationVM { get; set; } = default!;
+        //public DbSet<CinemaProject.ViewModels.ForgetPasswordVM> ForgetPasswordVM { get; set; } = default!;
 
     }
 }
