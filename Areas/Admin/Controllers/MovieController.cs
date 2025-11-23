@@ -1,4 +1,5 @@
 ﻿using CinemaProject.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace MovieProject.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE},{SD.EMPLOYEE_ROLE}")]
     public class MovieController : Controller
     {
         //private ApplicationDbContext _context = new();
@@ -193,6 +195,7 @@ namespace MovieProject.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpGet]
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
         public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
         {
             var Movie = await _movieRepository.GetOneAsync(e => e.Id == id, cancellationToken: cancellationToken);
@@ -204,6 +207,8 @@ namespace MovieProject.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
+
         public async Task<IActionResult> Edit(Movie Movie, IFormFile file, CancellationToken cancellationToken)
         {
             var MovieInDB = await _movieRepository.GetOneAsync(e => e.Id == Movie.Id, tracked: false, cancellationToken: cancellationToken);
@@ -241,6 +246,8 @@ namespace MovieProject.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
 
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {

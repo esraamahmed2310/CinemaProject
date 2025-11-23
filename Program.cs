@@ -1,5 +1,6 @@
 using CinemaProject.Services;
 using CinemaProject.Utilities;
+using CinemaProject.Utilities.DBSeeder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,16 @@ namespace CinemaProject
                })
                .AddEntityFrameworkStores<ApplicationDbContext>()
                  .AddDefaultTokenProviders();
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login"; // Customize login path
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied"; // Customize access denied path
+                                                                             // ... other cookie options ...
+            });
+
+
+
             builder.Services.AddTransient<IEmailSender, EmailSender>();
 
             builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
@@ -36,9 +47,16 @@ namespace CinemaProject
             builder.Services.AddScoped<IRepository<Movie>, Repository<Movie>>();
             builder.Services.AddScoped<IRepository<ApplicationUserOTP>, Repository<ApplicationUserOTP>>();
             builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 
-            var app = builder.Build();  
+            var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+                initializer.Initialize();
+            }
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

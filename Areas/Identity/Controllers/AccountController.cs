@@ -1,5 +1,6 @@
 ﻿using CinemaProject.Services;
 using CinemaProject.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CinemaProject.Areas.Identity.Controllers
@@ -66,6 +67,17 @@ namespace CinemaProject.Areas.Identity.Controllers
             ModelState.AddModelError("", message);
             return View(loginVM);
         }
+
+        public async Task<IActionResult> Logout()
+        {
+            await _accountService.LogoutAsync();   // استدعاء السيرفيس بدل SignInManager
+
+            TempData["success-notification"] = "Logout Successfully";
+
+            return RedirectToAction("Login");
+        }
+
+
 
         // ================= RESEND EMAIL CONFIRMATION ==================
         [HttpGet]

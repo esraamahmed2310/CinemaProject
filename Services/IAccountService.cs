@@ -12,5 +12,6 @@ namespace CinemaProject.Services
         Task<(bool Success, string Message)> ForgetPasswordAsync(ForgetPasswordVM forgetPasswordVM, string scheme, CancellationToken cancellationToken);
         Task<(bool Success, string Message)> ValidateOtpAsync(ValidateOTP validateOTP);
         Task<(bool Success, string Message)> NewPasswordAsync(NewPasswordVM newPasswordVM);
+        Task LogoutAsync();
     }
 }

@@ -17,5 +17,7 @@
         public Cinema Cinema { get; set; } = null!;
 
         public ICollection<MovieActor> MovieActors { get; set; } = new List<MovieActor>();
+        public int Discount { get; internal set; }
+        public int Rate { get; internal set; }
     }
 }

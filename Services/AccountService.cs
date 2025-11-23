@@ -42,6 +42,9 @@ namespace CinemaProject.Services
             await _emailSender.SendEmailAsync(user.Email!, "Confirm your email", $"<a href='{link}'>Click Here</a>");
 
             return (true, "Email Sent Successfully");
+
+            // Add User To Role
+            await _userManager.AddToRoleAsync(user!, SD.CUSTOMER_ROLE);
         }
 
         public async Task<(bool Success, string Message)> ConfirmEmailAsync(string id, string token)
@@ -68,6 +71,12 @@ namespace CinemaProject.Services
 
             return (false, "Invalid credentials");
         }
+
+        public async Task LogoutAsync()
+        {
+            await _signInManager.SignOutAsync();
+        }
+
 
         public async Task<(bool Success, string Message)> ResendEmailConfirmationAsync(ResendEmailConfirmationVM resendEmailConfirmationVM, string scheme)
         {
