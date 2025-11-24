@@ -4,6 +4,7 @@ using CinemaProject.Utilities.DBSeeder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 namespace CinemaProject
 {
@@ -47,9 +48,11 @@ namespace CinemaProject
             builder.Services.AddScoped<IRepository<Movie>, Repository<Movie>>();
             builder.Services.AddScoped<IRepository<ApplicationUserOTP>, Repository<ApplicationUserOTP>>();
             builder.Services.AddScoped<IRepository<Cart>, Repository<Cart>>();
-            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IAccountService,CinemaProject.Services.AccountService > ();
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
             var app = builder.Build();
 

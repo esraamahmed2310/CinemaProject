@@ -18,6 +18,9 @@ namespace CinemaProject.DataAccess
         public DbSet<MovieActor> MovieActors { get; set; }
         public DbSet<MovieSubImage> MovieSubImages { get; set; }
         public DbSet<ApplicationUserOTP> ApplicationUserOTPs { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
+
 
         // Depracted
         public ApplicationDbContext()
