@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace CinemaProject.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
+    //[Authorize(Roles = $"{SD.SUPER_ADMIN_ROLE},{SD.ADMIN_ROLE}")]
     public class UserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
