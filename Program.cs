@@ -49,6 +49,7 @@ namespace CinemaProject
             builder.Services.AddScoped<IRepository<ApplicationUserOTP>, Repository<ApplicationUserOTP>>();
             builder.Services.AddScoped<IRepository<Cart>, Repository<Cart>>();
             builder.Services.AddScoped<IAccountService,CinemaProject.Services.AccountService > ();
+            builder.Services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
